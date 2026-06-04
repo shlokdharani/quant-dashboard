@@ -151,22 +151,9 @@ export default function QuantDashboard() {
         const snap = await getDoc(docRef);
         if (snap.exists()) {
             const data = snap.data();
-            // User requested to reset the ewallet to 10 lakhs on every new login.
-            setPaperBalance(1000000);
+            setPaperBalance(data.balance || 1000000);
             setPaperPositions(data.positions || []);
-            setPaperHistory([
-              {
-                id: "reset-" + Date.now(),
-                symbol: "WALLET RESET",
-                type: "SYSTEM",
-                qty: 1,
-                entryPrice: 0,
-                exitPrice: 0,
-                realizedPnl: 1000000 - (data.balance || 0),
-                closedAt: new Date().toISOString()
-              },
-              ...(data.history || [])
-            ]);
+            setPaperHistory(data.history || []);
           } else {
             await setDoc(docRef, { balance: 1000000, positions: [], history: [] });
             setPaperBalance(1000000);
