@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Option IQ Dashboard
 
-## Getting Started
+> A cutting-edge, professional trading dashboard built for analyzing Indian market options and managing simulated paper trades. 
 
-First, run the development server:
+Option IQ provides a sleek, glassmorphic UI integrated with the **Black-Scholes pricing model**, **Angel One API** for real-time market data, **Firebase** for cloud authentication and portfolio tracking, and a **Premium News Aggregator** filtering top financial sources.
 
+![Dashboard Preview](https://via.placeholder.com/1200x600?text=Option+IQ+Dashboard) *(Replace with actual screenshot)*
+
+## 🚀 Key Features
+
+*   **Real-time Option Chain Analysis:** Visualize Live LTP, Volume, Open Interest, and IV directly from Angel One APIs.
+*   **Black-Scholes Greeks Engine:** Real-time calculation of Delta, Gamma, Theta, Vega, and Rho for any active options contract.
+*   **AI-Powered Paper Trading:** Execute simulated "Go Long" and "Go Short" trades. Start with a reset ₹10,00,000 balance on every login and track your PnL dynamically.
+*   **Interactive Charting:** Fully embedded TradingView widgets synced with Angel One SmartAPI candles for granular technical analysis.
+*   **Premium News Aggregator:** A focused Live News ticker filtering down to only top-tier financial sources (Reuters, Bloomberg, Moneycontrol, Mint, Economic Times, etc.).
+*   **Cloud Persistence:** Firebase-backed user authentication and trade history journaling.
+
+## 🛠️ Technology Stack
+
+*   **Framework:** Next.js 14 (App Router, Turbopack)
+*   **Language:** TypeScript
+*   **Styling:** TailwindCSS with dynamic, glassmorphic UI elements
+*   **Backend / DB / Auth:** Google Firebase (Firestore, Auth)
+*   **Market Data:** Angel One SmartAPI & Google News RSS
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+*   Node.js v18+
+*   npm or yarn
+*   A Firebase Project
+*   Angel One SmartAPI Developer Account
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/yourusername/option-iq-dashboard.git
+cd option-iq-dashboard
+```
+
+### 2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3. Configure Environment Variables
+Create a `.env.local` file in the root directory and add your credentials:
+
+```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
+
+# Angel One SmartAPI Configuration
+ANGEL_CLIENT_CODE=your_client_code
+ANGEL_PASSWORD=your_password
+ANGEL_TOTP_SECRET=your_totp_secret
+ANGEL_API_KEY=your_api_key
+```
+*(Note: Your actual Firebase Config is hardcoded in `lib/firebase.ts` for consistent runtime connectivity, but environment variables can be used if deployed to Vercel).*
+
+### 4. Run the Development Server
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📈 Paper Trading Workflow
+1.  **Sign Up / Login:** Authenticate using Firebase Email/Password. Your account balance will automatically initialize (or reset) to ₹10,00,000.
+2.  **Select Symbol:** Use the top search bar to find indices (e.g., NIFTY) or equities.
+3.  **Analyze:** Use the Market Chart and Option Chain views to identify trading opportunities. The AI Recommendation Engine will process the Greeks to suggest actions.
+4.  **Execute:** Use the Simulation Panel to set quantities and execute a paper trade. Track the transaction in the Trade History Journal.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 License
+This project is open-sourced under the [MIT license](LICENSE).
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Disclaimer: This dashboard is for educational and simulation purposes only. Simulated results do not represent actual trading and may not account for real-world slippage or liquidity constraints.*

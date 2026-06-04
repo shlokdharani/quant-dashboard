@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export interface BlackScholesInputs {
   spotPrice: number;
   strikePrice: number;
@@ -123,3 +124,101 @@ export function calculateBlackScholes({
     d2,
   };
 }
+
+export function calculateImpliedVolatility(
+  marketPrice: number,
+  spotPrice: number,
+  strikePrice: number,
+  timeToExpiry: number,
+  optionType: "CE" | "PE",
+  riskFreeRate = 0.05
+): number {
+  if (marketPrice <= 0 || timeToExpiry <= 0) return 0.0001;
+
+  let vol = 0.20; // Initial guess (20% vol)
+  const maxIterations = 100;
+  const precision = 0.0001;
+
+  for (let i = 0; i < maxIterations; i++) {
+    try {
+      const greeks = calculateBlackScholes({
+        spotPrice,
+        strikePrice,
+        timeToExpiry,
+        volatility: vol,
+        riskFreeRate,
+      });
+
+      const price = optionType === "CE" ? greeks.callPrice : greeks.putPrice;
+      const diff = price - marketPrice;
+
+      if (Math.abs(diff) < precision) {
+        return vol;
+      }
+
+      const actualVega = greeks.vega * 100; // Since vega is divided by 100 in the library
+      if (actualVega < 1e-6) {
+        break; // Fallback to bisection
+      }
+
+      const nextVol = vol - diff / actualVega;
+      if (nextVol <= 0 || nextVol > 5.0) {
+        break; // Out of bounds, fallback to bisection
+      }
+      vol = nextVol;
+    } catch (e) {
+      break;
+    }
+  }
+
+  // Fallback to Bisection Method
+  let low = 0.0001;
+  let high = 5.0;
+  let mid = 0.20;
+  for (let i = 0; i < 50; i++) {
+    mid = (low + high) / 2;
+    try {
+      const greeks = calculateBlackScholes({
+        spotPrice,
+        strikePrice,
+        timeToExpiry,
+        volatility: mid,
+        riskFreeRate,
+      });
+      const price = optionType === "CE" ? greeks.callPrice : greeks.putPrice;
+      const diff = price - marketPrice;
+      if (Math.abs(diff) < precision) {
+        return mid;
+      }
+      if (diff > 0) {
+        high = mid;
+      } else {
+        low = mid;
+      }
+    } catch (e) {
+      break;
+    }
+  }
+  return mid;
+}
+
+export function getTimeToExpiry(expiryStr: string): number {
+  const months = {
+    JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5,
+    JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11
+  };
+  const day = parseInt(expiryStr.substring(0, 2));
+  const monthStr = expiryStr.substring(2, 5).toUpperCase();
+  const year = parseInt(expiryStr.substring(5, 9));
+  
+  const month = months[monthStr as keyof typeof months] ?? 0;
+  const expiryDate = new Date(year, month, day, 15, 30, 0);
+  const now = new Date();
+  
+  const diffMs = expiryDate.getTime() - now.getTime();
+  const t = diffMs / (365 * 24 * 60 * 60 * 1000);
+  
+  return t < 0.00001 ? 0.00001 : t;
+}
+
+
