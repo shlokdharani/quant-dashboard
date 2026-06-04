@@ -1342,7 +1342,7 @@ export default function QuantDashboard() {
                           <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Strategic Reasoning:</span>
                           <ul className="space-y-2.5">
                             {recommendation.reasoning.map((item: string, idx: number) => (
-                              <li key={idx} className="flex items-start text-xs text-slate-200">
+                              <li key={idx} className="flex items-start text-xs text-slate-700">
                                 <ChevronRight className="w-4 h-4 mr-1 text-indigo-400 flex-shrink-0 mt-0.5" />
                                 <span>{item}</span>
                               </li>

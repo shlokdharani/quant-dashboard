@@ -60,7 +60,7 @@ Evaluate based on:
 
 CRITICAL RULES:
 - You MUST only output a recommendation of "BUY" if the calculated score is STRICTLY greater than 65.
-- You MUST include a specific time-based or condition-based exit strategy (e.g., "Sell before 2:30 PM to avoid decay") within the reasoning array.
+- You MUST include a DETAILED time-based and condition-based exit strategy within the reasoning array. Specify exactly when to exit (e.g. 'Sell before 2:30 PM IST to avoid Intraday Gamma risk'), what stop-loss percentage to apply (e.g. 'Place a strict stop loss at 15% below entry premium'), and take-profit targets based on Delta/Theta exposures.
 
 Respond ONLY with a valid JSON object in the following format (no markdown formatting, no explanation outside the JSON):
 {
@@ -186,7 +186,7 @@ Respond ONLY with a valid JSON object in the following format (no markdown forma
       riskReward = "Unfavorable risk-reward. High probability of premium expiring worthless due to rapid Theta decay.";
     }
 
-    reasoning.push("Exit Strategy: Sell before 2:30 PM IST or if spot momentum reverses, to avoid aggressive late-day Theta/Gamma decay.");
+    reasoning.push("Detailed Exit Strategy: 1) Strict Stop Loss: Sell immediately if option premium drops by 15% from entry. 2) Take Profit: Target a 25-30% gain based on spot momentum. 3) Time Exit: If the target is not hit, strictly exit the position before 2:30 PM IST to avoid unpredictable intraday Gamma spikes and aggressive late-day Theta decay. Do not carry OTM options overnight unless hedged.");
     
     const fallbackResponse = {
       recommendation,
