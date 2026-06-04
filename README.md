@@ -4,7 +4,7 @@
 
 Option IQ provides a sleek, glassmorphic UI integrated with the **Black-Scholes pricing model**, **Angel One API** for real-time market data, **Firebase** for cloud authentication and portfolio tracking, and a **Premium News Aggregator** filtering top financial sources.
 
-![Dashboard Preview](https://via.placeholder.com/1200x600?text=Option+IQ+Dashboard) *(Replace with actual screenshot)*
+
 
 ## 🚀 Key Features
 
