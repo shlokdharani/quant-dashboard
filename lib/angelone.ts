@@ -3,9 +3,10 @@ import { TOTP, NobleCryptoPlugin, ScureBase32Plugin } from "otplib";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { calculateBlackScholes, calculateImpliedVolatility, getTimeToExpiry } from "./blackScholes";
 
-const CACHE_DIR = path.join(process.cwd(), ".cache");
+const CACHE_DIR = path.join(os.tmpdir(), ".cache");
 const SESSION_PATH = path.join(CACHE_DIR, "session.json");
 const UNDERLYINGS_PATH = path.join(CACHE_DIR, "underlyings.json");
 const OPTIONS_DIR = path.join(CACHE_DIR, "options");
