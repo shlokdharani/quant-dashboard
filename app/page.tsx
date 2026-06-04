@@ -1325,15 +1325,15 @@ export default function QuantDashboard() {
                         <div className="md:col-span-2 flex flex-col space-y-4">
                           <div>
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Greeks Health:</span>
-                            <p className="text-xs text-slate-200 mt-1">{recommendation.greeksAnalysis}</p>
+                            <p className="text-xs text-slate-700 mt-1">{recommendation.greeksAnalysis}</p>
                           </div>
                           <div>
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Volatility Skew:</span>
-                            <p className="text-xs text-slate-200 mt-1">{recommendation.volatilityAnalysis}</p>
+                            <p className="text-xs text-slate-700 mt-1">{recommendation.volatilityAnalysis}</p>
                           </div>
                           <div>
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Risk-Reward Analysis:</span>
-                            <p className="text-xs text-slate-200 mt-1">{recommendation.riskReward}</p>
+                            <p className="text-xs text-slate-700 mt-1">{recommendation.riskReward}</p>
                           </div>
                         </div>
 

@@ -54,9 +54,13 @@ Input Contract Details:
 
 Evaluate based on:
 1. Directional sentiment (underlying spot relative to option strike).
-2. Volatility premium (Is IV high or low relative to standard indices? High IV favors option sellers, Low IV favors option buyers).
+2. Volatility premium (Is IV high or low relative to standard indices?).
 3. Greeks Health (Theta decay risk vs. Delta exposure, Gamma acceleration).
 4. Risk-Reward ratio.
+
+CRITICAL RULES:
+- You MUST only output a recommendation of "BUY" if the calculated score is STRICTLY greater than 65.
+- You MUST include a specific time-based or condition-based exit strategy (e.g., "Sell before 2:30 PM to avoid decay") within the reasoning array.
 
 Respond ONLY with a valid JSON object in the following format (no markdown formatting, no explanation outside the JSON):
 {
@@ -165,7 +169,7 @@ Respond ONLY with a valid JSON object in the following format (no markdown forma
     }
 
     // Final recommendation decision
-    if (score > 60 && recommendation !== "SELL") {
+    if (score > 65 && recommendation !== "SELL") {
       recommendation = "BUY";
     } else if (score < 40 && recommendation !== "SELL") {
       recommendation = "AVOID";
@@ -182,6 +186,8 @@ Respond ONLY with a valid JSON object in the following format (no markdown forma
       riskReward = "Unfavorable risk-reward. High probability of premium expiring worthless due to rapid Theta decay.";
     }
 
+    reasoning.push("Exit Strategy: Sell before 2:30 PM IST or if spot momentum reverses, to avoid aggressive late-day Theta/Gamma decay.");
+    
     const fallbackResponse = {
       recommendation,
       score: Math.max(10, Math.min(95, score)),
