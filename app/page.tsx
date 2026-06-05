@@ -45,7 +45,7 @@ import {
   AlertTriangle,
   Play
 } from "lucide-react";
-import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, getDoc, setDoc, updateDoc } from "@/lib/firebase";
+import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs } from "@/lib/firebase";
 import { getTimeToExpiry } from "@/lib/blackScholes";
 import type { UnderlyingSymbol, OptionChainItem, OptionChainDetails } from "@/lib/angelone";
 
@@ -152,8 +152,27 @@ export default function QuantDashboard() {
         if (snap.exists()) {
             const data = snap.data();
             setPaperBalance(data.balance || 1000000);
-            setPaperPositions(data.positions || []);
-            setPaperHistory(data.history || []);
+            
+            try {
+              const posSnap = await getDocs(collection(db, "users", u.uid, "open_positions"));
+              if (!posSnap.empty) {
+                setPaperPositions(posSnap.docs.map(d => d.data() as any));
+              } else {
+                setPaperPositions(data.positions || []);
+              }
+              
+              const histSnap = await getDocs(collection(db, "users", u.uid, "trade_history"));
+              if (!histSnap.empty) {
+                const fetchedHistory = histSnap.docs.map(d => d.data() as any);
+                fetchedHistory.sort((a, b) => new Date(b.exitTime).getTime() - new Date(a.exitTime).getTime());
+                setPaperHistory(fetchedHistory);
+              } else {
+                setPaperHistory(data.history || []);
+              }
+            } catch (e) {
+              setPaperPositions(data.positions || []);
+              setPaperHistory(data.history || []);
+            }
           } else {
             await setDoc(docRef, { balance: 1000000, positions: [], history: [] });
             setPaperBalance(1000000);
@@ -199,9 +218,7 @@ export default function QuantDashboard() {
       const saveToDb = async () => {
         try {
           await updateDoc(doc(db, "users", user.uid), {
-            balance: paperBalance,
-            positions: paperPositions,
-            history: paperHistory
+            balance: paperBalance
           });
         } catch (e) { console.error("Firebase sync error", e); }
       };
@@ -635,6 +652,10 @@ export default function QuantDashboard() {
 
     setPaperPositions(prev => [newPosition, ...prev]);
     
+    if (user) {
+      setDoc(doc(db, "users", user.uid, "open_positions", newPosition.id), newPosition).catch(console.error);
+    }
+    
     // Deduct balance for buying premium
     if (tradeType === "BUY") {
       setPaperBalance(prev => prev - marginRequired);
@@ -670,6 +691,11 @@ export default function QuantDashboard() {
     setPaperHistory(prev => [closedTrade, ...prev]);
     // Remove from active positions
     setPaperPositions(prev => prev.filter(p => p.id !== position.id));
+
+    if (user) {
+      setDoc(doc(db, "users", user.uid, "trade_history", closedTrade.id), closedTrade).catch(console.error);
+      deleteDoc(doc(db, "users", user.uid, "open_positions", position.id)).catch(console.error);
+    }
 
     alert(`Simulated position closed! Realized P&L: ₹${position.pnl.toLocaleString()}`);
   };
@@ -1506,8 +1532,9 @@ export default function QuantDashboard() {
                             <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 border-t border-slate-200/40 pt-2">
                               <div>Qty: <span className="font-semibold text-slate-700">{pos.qty} lot(s)</span></div>
                               <div>Entry: <span className="font-semibold text-slate-700">₹{pos.entryPrice.toFixed(2)}</span></div>
+                              <div>Spent: <span className="font-semibold text-slate-700">₹{(pos.qty * (pos.lotsize || 1) * pos.entryPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span></div>
                               <div>Current: <span className="font-semibold text-slate-700">₹{pos.currentPrice.toFixed(2)}</span></div>
-                              <div className="flex items-center space-x-1">
+                              <div className="col-span-2 flex items-center space-x-1 border-t border-slate-200/40 pt-2 mt-1">
                                 <span>P&L:</span>
                                 <span className={`font-bold ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                                   ₹{pos.pnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -1552,6 +1579,7 @@ export default function QuantDashboard() {
                               <th className="px-4 py-3">Symbol</th>
                               <th className="px-4 py-3">Type</th>
                               <th className="px-4 py-3">Qty</th>
+                              <th className="px-4 py-3">Money Spent</th>
                               <th className="px-4 py-3">Entry Price</th>
                               <th className="px-4 py-3">Exit Price</th>
                               <th className="px-4 py-3 text-right">Realized P&L</th>
@@ -1570,6 +1598,7 @@ export default function QuantDashboard() {
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 font-medium">{trade.qty} lot(s)</td>
+                                <td className="px-4 py-3 text-slate-500 font-semibold">₹{(trade.qty * (trade.lotsize || 1) * trade.entryPrice).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
                                 <td className="px-4 py-3 text-slate-500">₹{trade.entryPrice.toFixed(2)}</td>
                                 <td className="px-4 py-3 text-slate-500">₹{trade.exitPrice.toFixed(2)}</td>
                                 <td className={`px-4 py-3 text-right font-bold ${
